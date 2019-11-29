@@ -1,0 +1,7 @@
+---
+- hosts: all
+  roles:
+   - {role: 'setup-server', tags: 'setup-server'}
+   - {role: 'setup-nginx', tags: 'setup-nginx'}
+   - {role: 'setup-pysshauthz', tags: 'setup-pysshauthz'}
+   - {role: 'configure-pysshauthz-sites', tags: 'configure-pysshauthz-sites'}

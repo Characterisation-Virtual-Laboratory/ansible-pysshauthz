@@ -1,0 +1,45 @@
+---
+- name: copy google keys to pysshauthz
+  copy:
+    src: google_keys.json
+    dest:  /opt/pysshauthz/etc/google_keys.json
+    owner: ubuntu
+    mode: 0644
+
+- name: create certs for sites
+  openssh_keypair:
+   path:  /opt/pysshauthz/etc/{{ item }}_ca
+   owner: www-data
+  loop: "{{ sites }}"
+  become: true
+  become_user: root
+
+- name: set permission for www-data
+  become: true
+  become_user: root
+  file:
+    path: /opt/pysshauthz/src/pysshauthz/pysshauthz
+    mode: 0777
+
+- name: set log permission for www-data
+  become: true
+  become_user: root
+  file:
+    path: /var/log/pysshauthz.log
+    state: touch
+    owner: www-data
+
+#### This section may be irrelevant once the app is updated to self-generate password ####
+
+- name: set random password for app
+  shell: openssl rand -base64 32
+  register: secret_key
+
+- name: replace secret key
+  lineinfile:
+    dest: /opt/pysshauthz/src/pysshauthz/pysshauthz/app.py
+    regexp: '^(.*)SECRET_KEY(.*)$'
+    line: "    'SECRET_KEY': '{{ secret_key.stdout }}',"
+
+###########################################################################################
+

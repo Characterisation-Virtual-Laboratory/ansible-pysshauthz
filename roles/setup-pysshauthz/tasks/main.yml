@@ -1,0 +1,54 @@
+---
+- name: setup known_host for gitlab.erc.monash.edu.au
+  known_hosts:
+    name: gitlab.erc.monash.edu.au
+    key: "{{ lookup('file', 'gitlab.erc.monash.edu.au') }}"
+    
+- name: install dependencies
+  apt:
+    name: ['python3-pip', 'python-pip', 'nginx', 'letsencrypt', 'git', 'virtualenv', 'python3-venv', 'gcc', 'python3-certbot-nginx']
+    state: present
+  become: true
+  become_user: root
+
+- name: create venv dir
+  file:
+    path: /opt/pysshauthz
+    state: directory
+    owner: ubuntu
+  become: true
+  become_user: root
+
+- name: create venv etc dir
+  file:
+    path: /opt/pysshauthz/etc
+    state: directory
+    owner: ubuntu
+  become: true
+  become_user: root
+
+- name: create virtualenv
+  pip:
+    name:
+      - uwsgi
+      - python-dateutil
+      - flask_sqlalchemy
+      - requests
+    virtualenv: /opt/pysshauthz
+    virtualenv_python: python3.6
+
+- name: configure pysshauthz service definition
+  template:
+    src: pysshauthz.service.j2
+    dest: /etc/systemd/system/pysshauthz.service
+    mode: 0640
+  become: true
+  become_user: root
+
+- name: install pysshauthz
+  pip:
+    name:
+      - git+ssh://git@gitlab.erc.monash.edu.au/hpc-team/pysshauthz.git#egg=pysshauthz
+    virtualenv: /opt/pysshauthz
+    virtualenv_python: python3.6
+    extra_args: --editable

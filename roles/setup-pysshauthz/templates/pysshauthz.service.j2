@@ -1,0 +1,13 @@
+[Unit]
+Description=pysshauthz uWSGI app
+After=syslog.target
+
+[Service]
+
+ExecStart=/opt/pysshauthz/bin/uwsgi --socket 127.0.0.1:8080 --protocol=http -w pysshauthz.pysshauthz_wsgi --pyargv="--configdir /opt/pysshauthz/etc"
+User=www-data
+Group=www-data
+Restart=on-failure
+KillSignal=SIGQUIT
+Type=notify
+StandardError=syslog
