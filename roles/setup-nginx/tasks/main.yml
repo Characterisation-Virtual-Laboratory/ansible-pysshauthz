@@ -1,4 +1,11 @@
 ---
+- name: install nginx
+  apt:
+    name: nginx
+    state: present
+  become: true
+  become_user: root
+
 - name: configure default site for nginx
   template:
     src: default.j2
@@ -12,6 +19,13 @@
   stat: 
     path: /etc/letsencrypt/live/{{ default_url }}
   register: p
+  become: true
+  become_user: root
+
+- name: stop nginx
+  systemd:
+    name: nginx
+    state: stopped
   become: true
   become_user: root
 
