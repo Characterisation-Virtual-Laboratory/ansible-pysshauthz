@@ -1,7 +1,7 @@
 ---
-- name: install nginx
+- name: install nginx and dependencies
   apt:
-    name: nginx
+    name: ['nginx', 'python3-pip', 'python-pip', 'nginx', 'letsencrypt', 'git', 'virtualenv', 'python3-venv', 'gcc', 'python3-certbot-nginx']
     state: present
   become: true
   become_user: root
