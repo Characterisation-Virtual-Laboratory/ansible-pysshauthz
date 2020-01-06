@@ -30,7 +30,7 @@
   become_user: root
 
 - name: create certificate
-  command: "certbot --nginx --agree-tos --standalone --email {{ default_email }} --non-interactive  -d {{ default_url }}"
+  command: "certbot --agree-tos --standalone --email {{ default_email }} --non-interactive  -d {{ default_url }}"
   become: true
   become_user: root
   when: p.stat.isdir is not defined 
