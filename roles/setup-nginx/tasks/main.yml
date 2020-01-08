@@ -6,15 +6,6 @@
   become: true
   become_user: root
 
-- name: configure default site for nginx
-  template:
-    src: default.j2
-    dest: /etc/nginx/sites-available/default
-    mode: 0640
-  become: true
-  become_user: root
-  notify: stop nginx
-
 - name: check cert dir exists
   stat: 
     path: /etc/letsencrypt/live/{{ default_url }}
@@ -22,19 +13,11 @@
   become: true
   become_user: root
 
-- name: stop nginx
-  systemd:
-    name: nginx
-    state: stopped
-  become: true
-  become_user: root
-
 - name: create certificate
-  command: "certbot --agree-tos --standalone --email {{ default_email }} --non-interactive  -d {{ default_url }}"
+  command: "certbot --nginx --agree-tos --email {{ default_email }} --non-interactive  -d {{ default_url }}"
   become: true
   become_user: root
-  when: p.stat.isdir is not defined 
-  notify: start nginx
+  when: p.stat.isdir is not defined
 
 - name: configure pysshauthz site redirect for nginx
   template:
@@ -43,4 +26,13 @@
     mode: 0640
   become: true
   become_user: root
-  notify: start nginx
+  notify: restart nginx
+
+- name: configure default redirect for nginx
+  template:
+    src: default.j2
+    dest: /etc/nginx/sites-available/default
+    mode: 0640
+  become: true
+  become_user: root
+  notify: restart nginx
